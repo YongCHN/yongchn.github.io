@@ -1,8 +1,0 @@
-title: yongchn.github.io
-description: Open-source Large Language Models & Research
-url: "https://yongchn.github.io"
-baseurl: "https://yongchn.github.io" # 个人主页留空
-
-# 开启数学公式渲染（AI 博客常用）
-markdown: kramdown
-highlighter: rouge
