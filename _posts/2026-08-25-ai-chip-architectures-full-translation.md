@@ -1,7 +1,7 @@
 ---
 title: "AI 芯片架构：GPU、TPU、WSE、Trainium 与 LPU（全文译文）"
 description: "一篇全面梳理主流 AI 芯片的长文：从内存墙出发，深入 NVIDIA、Google、AMD、Cerebras、AWS 与 Groq 的架构、扩展方式和软件栈。"
-date: 2026-08-25 09:00:00 +0800
+date: 2026-08-25 00:00:00 +0800
 categories: [人工智能, 计算机体系结构]
 tags: [AI芯片, GPU, TPU, WSE, Trainium, LPU]
 author: Jacob Peake
