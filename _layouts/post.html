@@ -1,13 +1,14 @@
 ---
 layout: default
 ---
+{% assign read_minutes = page.content | strip_html | size | divided_by: 500 | plus: 1 %}
 <article class="post-shell">
   <header class="post-hero">
     <div class="container narrow">
       <div class="post-meta">
         <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y 年 %-m 月 %-d 日" }}</time>
         <span aria-hidden="true">·</span>
-        <span>{{ page.content | number_of_words | divided_by: 400 | plus: 1 }} 分钟阅读</span>
+        <span>{{ read_minutes }} 分钟阅读</span>
         {% if page.translation %}<span class="post-kind is-translation">译文</span>{% else %}<span class="post-kind">原创</span>{% endif %}
       </div>
       <h1>{{ page.title }}</h1>
