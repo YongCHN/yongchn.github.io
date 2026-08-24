@@ -7,7 +7,7 @@ tags: [AI芯片, GPU, TPU, WSE, Trainium, LPU]
 author: Jacob Peake
 translator: Yong
 translation: true
-translation_authorized: true
+translation_authorized: false
 original_title: "AI Chip Architectures"
 original_author: "Jacob Peake"
 original_url: "https://www.jacobpeake.com/ai-chip-architectures"
