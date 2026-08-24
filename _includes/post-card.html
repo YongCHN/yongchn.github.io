@@ -1,0 +1,20 @@
+<article class="post-card searchable-post" data-title="{{ post.title | escape }}" data-categories="{{ post.categories | join: ' ' | escape }}" data-tags="{{ post.tags | join: ' ' | escape }}">
+  <a class="post-card-link" href="{{ post.url | relative_url }}">
+    <div class="post-card-topline">
+      <time datetime="{{ post.date | date_to_xmlschema }}">{{ post.date | date: "%Y.%m.%d" }}</time>
+      {% if post.translation %}
+        <span class="post-kind is-translation">译文</span>
+      {% else %}
+        <span class="post-kind">原创</span>
+      {% endif %}
+    </div>
+    <h2>{{ post.title }}</h2>
+    <p>{{ post.description | default: post.excerpt | strip_html | truncate: 120 }}</p>
+    <div class="post-card-footer">
+      <div class="tag-list" aria-label="文章标签">
+        {% for tag in post.tags limit: 3 %}<span>#{{ tag }}</span>{% endfor %}
+      </div>
+      <span class="read-more">阅读全文 <span aria-hidden="true">→</span></span>
+    </div>
+  </a>
+</article>

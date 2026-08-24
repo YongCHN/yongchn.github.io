@@ -1,0 +1,21 @@
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="{{ '/' | relative_url }}" aria-label="{{ site.title }} 首页">
+      <span class="brand-mark">Y</span>
+      <span class="brand-name">{{ site.short_title }}</span>
+      <span class="brand-separator">/</span>
+      <span class="brand-section">技术笔记</span>
+    </a>
+
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="打开导航">
+      <span></span><span></span>
+    </button>
+
+    <nav class="site-nav" id="site-nav" aria-label="主导航">
+      <a href="{{ '/' | relative_url }}"{% if page.url == '/' %} class="active"{% endif %}>首页</a>
+      <a href="{{ '/archive/' | relative_url }}"{% if page.url contains '/archive' %} class="active"{% endif %}>归档</a>
+      <a href="{{ '/about/' | relative_url }}"{% if page.url contains '/about' %} class="active"{% endif %}>关于</a>
+      <a class="nav-github" href="https://github.com/{{ site.author.github }}" target="_blank" rel="noopener noreferrer">GitHub <span aria-hidden="true">↗</span></a>
+    </nav>
+  </div>
+</header>

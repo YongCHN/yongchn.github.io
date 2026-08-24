@@ -1,0 +1,56 @@
+---
+layout: default
+---
+<article class="post-shell">
+  <header class="post-hero">
+    <div class="container narrow">
+      <div class="post-meta">
+        <time datetime="{{ page.date | date_to_xmlschema }}">{{ page.date | date: "%Y 年 %-m 月 %-d 日" }}</time>
+        <span aria-hidden="true">·</span>
+        <span>{{ page.content | number_of_words | divided_by: 400 | plus: 1 }} 分钟阅读</span>
+        {% if page.translation %}<span class="post-kind is-translation">译文</span>{% else %}<span class="post-kind">原创</span>{% endif %}
+      </div>
+      <h1>{{ page.title }}</h1>
+      {% if page.description %}<p class="post-description">{{ page.description }}</p>{% endif %}
+      <div class="tag-list large">
+        {% for tag in page.tags %}<span>#{{ tag }}</span>{% endfor %}
+      </div>
+    </div>
+  </header>
+
+  <div class="container article-grid">
+    <aside class="article-aside" aria-label="文章信息">
+      <div class="aside-sticky">
+        <span class="aside-label">作者</span>
+        <strong>{{ page.author | default: site.author.name }}</strong>
+        {% if page.categories.size > 0 %}
+          <span class="aside-label">分类</span>
+          <span>{{ page.categories | join: ' / ' }}</span>
+        {% endif %}
+      </div>
+    </aside>
+
+    <div class="article-main">
+      {% if page.translation %}
+        <aside class="translation-note">
+          <span class="translation-icon">译</span>
+          <div>
+            <strong>译者说明</strong>
+            <p>本文译自{% if page.original_author %} {{ page.original_author }} 的{% endif %}《{{ page.original_title | default: page.title }}》。翻译仅用于学习与交流，内容以原文为准。</p>
+            {% if page.original_url %}<a href="{{ page.original_url }}" target="_blank" rel="noopener noreferrer">阅读原文 <span aria-hidden="true">↗</span></a>{% endif %}
+          </div>
+        </aside>
+      {% endif %}
+
+      <div class="prose">{{ content }}</div>
+
+      <footer class="post-end">
+        <span>— END —</span>
+        <div>
+          <p>如果这篇文章对你有帮助，欢迎通过 RSS 订阅或在 GitHub 上关注。</p>
+          <a href="{{ '/archive/' | relative_url }}">继续阅读更多文章 →</a>
+        </div>
+      </footer>
+    </div>
+  </div>
+</article>

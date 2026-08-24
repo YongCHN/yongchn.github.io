@@ -1,0 +1,52 @@
+title: YongCHN 技术笔记
+short_title: YONGCHN
+description: 记录人工智能、开源模型与软件工程，也翻译值得被中文读者看见的技术文章。
+url: "https://yongchn.github.io"
+baseurl: ""
+logo: /assets/images/og.png
+lang: zh-CN
+timezone: Asia/Shanghai
+
+author:
+  name: Yong
+  bio: 关注大语言模型、开源研究与工程实践。
+  github: YongCHN
+
+markdown: kramdown
+highlighter: rouge
+permalink: /posts/:title/
+future: false
+
+kramdown:
+  input: GFM
+  syntax_highlighter: rouge
+
+defaults:
+  - scope:
+      path: ""
+      type: posts
+    values:
+      layout: post
+      author: Yong
+      image: /assets/images/og.png
+  - scope:
+      path: ""
+      type: pages
+    values:
+      layout: page
+      image: /assets/images/og.png
+
+exclude:
+  - Gemfile
+  - Gemfile.lock
+  - README.md
+  - vendor
+
+plugins:
+  - jekyll-feed
+  - jekyll-seo-tag
+
+social:
+  name: YongCHN 技术笔记
+  links:
+    - https://github.com/YongCHN

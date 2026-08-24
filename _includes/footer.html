@@ -1,0 +1,13 @@
+<footer class="site-footer">
+  <div class="container footer-inner">
+    <div>
+      <a class="footer-brand" href="{{ '/' | relative_url }}">{{ site.short_title }}</a>
+      <p>Keep learning. Keep building.</p>
+    </div>
+    <div class="footer-links">
+      <a href="{{ '/feed.xml' | relative_url }}">RSS</a>
+      <a href="https://github.com/{{ site.author.github }}" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <span>© {{ 'now' | date: '%Y' }} {{ site.author.name }}</span>
+    </div>
+  </div>
+</footer>
