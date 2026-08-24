@@ -4,46 +4,12 @@ title: 首页
 description: 记录人工智能、开源模型与软件工程，也翻译值得被中文读者看见的技术文章。
 image: /assets/images/og.png
 ---
-<section class="hero">
-  <div class="hero-grid" aria-hidden="true"></div>
-  <div class="hero-orb hero-orb-one" aria-hidden="true"></div>
-  <div class="hero-orb hero-orb-two" aria-hidden="true"></div>
-  <div class="container hero-inner">
-    <div class="hero-copy">
-      <p class="eyebrow"><span class="status-dot"></span> Yong's technical journal</p>
-      <h1>探索技术的边界，<br><span>记录思考的路径。</span></h1>
-      <p class="hero-description">关注人工智能、开源模型与软件工程。分享实践，也翻译那些值得被中文读者看见的技术文章。</p>
-      <div class="hero-actions">
-        <a class="button button-primary" href="#latest">阅读最新文章 <span aria-hidden="true">↓</span></a>
-        <a class="button button-ghost" href="{{ '/about/' | relative_url }}">了解这个博客</a>
-      </div>
-    </div>
-    <div class="hero-terminal" aria-label="博客主题示意">
-      <div class="terminal-bar">
-        <span></span><span></span><span></span>
-        <small>research.log</small>
-      </div>
-      <div class="terminal-content">
-        <p><span class="prompt">›</span> topics --list</p>
-        <p class="terminal-output">LLM / Open Source / Engineering</p>
-        <p><span class="prompt">›</span> language</p>
-        <p class="terminal-output">中文 · English → 中文</p>
-        <p><span class="prompt">›</span> status</p>
-        <p class="terminal-output"><span class="terminal-live">●</span> continuously learning<span class="cursor">_</span></p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<section class="latest-section" id="latest">
+<section class="home-index">
   <div class="container">
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">Latest writing</p>
-        <h2>最新文章</h2>
-      </div>
-      <a href="{{ '/archive/' | relative_url }}">查看全部 <span aria-hidden="true">→</span></a>
-    </div>
+    <header class="home-index-header">
+      <h1>文章</h1>
+      <span>{{ site.posts | size }} 篇</span>
+    </header>
 
     <div class="filter-bar">
       <div class="filter-pills" role="group" aria-label="文章类型筛选">
@@ -58,23 +24,9 @@ image: /assets/images/og.png
       </label>
     </div>
 
-    <div class="posts-grid" id="posts-grid">
-      {% for post in site.posts limit: 6 %}{% include post-card.html post=post %}{% endfor %}
+    <div class="post-list" id="posts-grid">
+      {% for post in site.posts %}{% include post-card.html post=post %}{% endfor %}
     </div>
     <p class="empty-state" id="empty-state" hidden>没有找到匹配的文章，换个关键词试试。</p>
-  </div>
-</section>
-
-<section class="principles-section">
-  <div class="container principles-grid">
-    <div>
-      <p class="eyebrow">What you'll find here</p>
-      <h2>不追逐噪音，<br>只沉淀有价值的内容。</h2>
-    </div>
-    <div class="principle-list">
-      <div class="principle-item"><span>01</span><div><h3>原理与实践</h3><p>从论文中的方法，到工程里的取舍。</p></div></div>
-      <div class="principle-item"><span>02</span><div><h3>优质技术译文</h3><p>尊重原作者，保留上下文，提供准确的中文表达。</p></div></div>
-      <div class="principle-item"><span>03</span><div><h3>长期主义</h3><p>写下经得起时间检验、可以反复查阅的内容。</p></div></div>
-    </div>
   </div>
 </section>
