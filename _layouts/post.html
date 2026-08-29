@@ -10,6 +10,7 @@ layout: default
         <span aria-hidden="true">·</span>
         <span>{{ read_minutes }} 分钟阅读</span>
         {% if page.translation %}<span class="post-kind is-translation">译文</span>{% else %}<span class="post-kind">原创</span>{% endif %}
+        {% if page.reprint %}<span class="post-kind is-reprint">转载</span>{% endif %}
       </div>
       <h1>{{ page.title }}</h1>
       {% if page.description %}<p class="post-description">{{ page.description }}</p>{% endif %}
@@ -38,15 +39,33 @@ layout: default
     <div class="article-main">
       {% if page.translation %}
         <aside class="translation-note">
-          <span class="translation-icon">译</span>
+          <span class="translation-icon">{% if page.reprint %}转{% else %}译{% endif %}</span>
           <div>
-            <strong>译文说明</strong>
+            {% if page.reprint %}
+              <div class="translation-links is-before" aria-label="原文链接">
+                <span>原文：</span>
+                {% if page.original_urls %}
+                  {% for original in page.original_urls %}<a href="{{ original.url }}" target="_blank" rel="noopener noreferrer">{{ original.title }} <span aria-hidden="true">↗</span></a>{% endfor %}
+                {% elsif page.original_url %}
+                  <a href="{{ page.original_url }}" target="_blank" rel="noopener noreferrer">阅读原文 <span aria-hidden="true">↗</span></a>
+                {% endif %}
+              </div>
+            {% endif %}
+            <strong>{% if page.reprint %}【转载】{% endif %}译文说明</strong>
             {% if page.translation_authorized %}
               <p>本文经授权，完整翻译转载自{% if page.original_author %} {{ page.original_author }} 的{% endif %}《{{ page.original_title | default: page.title }}》。译文尽力忠实原文，内容以原文为准。</p>
             {% else %}
               <p>本文译自{% if page.original_author %} {{ page.original_author }} 的{% endif %}《{{ page.original_title | default: page.title }}》。翻译仅用于学习与交流，内容以原文为准。</p>
             {% endif %}
-            {% if page.original_url %}<a href="{{ page.original_url }}" target="_blank" rel="noopener noreferrer">阅读原文 <span aria-hidden="true">↗</span></a>{% endif %}
+            {% unless page.reprint %}
+              {% if page.original_urls %}
+                <div class="translation-links" aria-label="系列原文链接">
+                  {% for original in page.original_urls %}<a href="{{ original.url }}" target="_blank" rel="noopener noreferrer">{{ original.title }} <span aria-hidden="true">↗</span></a>{% endfor %}
+                </div>
+              {% elsif page.original_url %}
+                <a href="{{ page.original_url }}" target="_blank" rel="noopener noreferrer">阅读原文 <span aria-hidden="true">↗</span></a>
+              {% endif %}
+            {% endunless %}
           </div>
         </aside>
       {% endif %}
