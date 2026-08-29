@@ -74,6 +74,7 @@ img { display: block; max-width: 100%; }
 .post-row-meta { display: flex; align-items: flex-start; flex-direction: column; gap: 9px; padding-top: 4px; color: #71877d; font-family: var(--mono); font-size: 11px; }
 .post-kind { padding: 3px 8px; color: var(--accent); border: 1px solid rgba(99,245,173,.25); border-radius: 3px; font-family: var(--sans); font-size: 10px; }
 .post-kind.is-translation { color: var(--warm); border-color: rgba(233,189,116,.3); }
+.post-kind.is-reprint { color: #9fc5ff; border-color: rgba(159,197,255,.3); }
 .post-row-content { min-width: 0; }
 .post-row-content h2 { margin: 0; font-size: 22px; line-height: 1.45; letter-spacing: -.025em; transition: color .2s ease; }
 .post-row-link:hover h2 { color: var(--accent); }
@@ -102,6 +103,8 @@ img { display: block; max-width: 100%; }
 .translation-note strong { font-size: 14px; }
 .translation-note p { margin: 5px 0; color: var(--text-muted); font-size: 13px; }
 .translation-note a { color: var(--warm); font-size: 12px; }
+.translation-links { display: flex; flex-wrap: wrap; gap: 7px 16px; margin-top: 9px; }
+.translation-links.is-before { margin: 0 0 7px; color: var(--text-muted); font-size: 12px; }
 .prose { min-width: 0; color: #cbd9d2; overflow-wrap: anywhere; font-size: 17px; line-height: 1.95; }
 .prose > *:first-child { margin-top: 0; }
 .prose h2 { margin: 2.3em 0 .7em; color: var(--text); font-size: 29px; line-height: 1.4; letter-spacing: -.03em; }
@@ -115,6 +118,15 @@ img { display: block; max-width: 100%; }
 .prose pre { width: 100%; max-width: 100%; margin: 2em 0; padding: 24px; overflow-x: auto; border: 1px solid var(--line); border-radius: 6px; background: #050c0a; line-height: 1.7; -webkit-overflow-scrolling: touch; }
 .prose pre code { padding: 0; color: #cbd9d2; border: 0; background: none; overflow-wrap: normal; word-break: normal; }
 .prose hr { margin: 3em 0; border: 0; border-top: 1px solid var(--line); }
+.prose figure { margin: 2.4em 0; }
+.prose figure img { width: 100%; margin: 0 auto; padding: 14px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
+.prose figure.figure-medium { max-width: 660px; margin-right: auto; margin-left: auto; }
+.prose figure.figure-narrow { max-width: 520px; margin-right: auto; margin-left: auto; }
+.prose figcaption { margin-top: 10px; color: var(--text-muted); font-size: 12px; line-height: 1.65; text-align: center; }
+.prose details { margin: 1.8em 0; padding: 16px 18px; border: 1px solid var(--line); border-radius: 5px; background: rgba(255,255,255,.02); }
+.prose summary { color: var(--text); cursor: pointer; font-weight: 600; }
+.prose details[open] summary { margin-bottom: 14px; }
+.prose mjx-container[display="true"] { max-width: 100%; padding: 8px 0; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; }
 .prose table { display: block; width: 100%; max-width: 100%; margin: 2em 0; overflow-x: auto; border-collapse: collapse; font-size: 14px; -webkit-overflow-scrolling: touch; }
 .prose th, .prose td { padding: 12px; border: 1px solid var(--line); text-align: left; }
 .prose th { color: var(--text); background: var(--surface); }
