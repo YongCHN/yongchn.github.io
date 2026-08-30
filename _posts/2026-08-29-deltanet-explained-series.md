@@ -52,10 +52,10 @@ $$
 
 其中：
 
-- $L$ 表示序列长度；
-- $d$ 表示注意力头的维度；
-- $\mathbf{Q}, \mathbf{K}, \mathbf{V}, \mathbf{O} \in \mathbb{R}^{L \times d}$ 分别表示 query、key、value 和输出矩阵；
-- $\mathbf{M} \in \mathbb{R}^{L \times L}$ 是用于自回归建模的因果掩码，保证每个位置只能关注它之前的位置。
+- $$L$$ 表示序列长度；
+- $$d$$ 表示注意力头的维度；
+- $$\mathbf{Q}, \mathbf{K}, \mathbf{V}, \mathbf{O} \in \mathbb{R}^{L \times d}$$ 分别表示 query、key、value 和输出矩阵；
+- $$\mathbf{M} \in \mathbb{R}^{L \times L}$$ 是用于自回归建模的因果掩码，保证每个位置只能关注它之前的位置。
 
 [线性注意力](https://arxiv.org/abs/2006.16236)所做的事情，就是直接移除 softmax 算子[^linear-attention-note]：
 
@@ -77,14 +77,14 @@ $$
 \end{aligned}
 $$
 
-定义状态矩阵 $\mathbf{S}_t = \sum_{j=1}^t\mathbf{v}_j\mathbf{k}_j^\top$，计算便可以写成：
+定义状态矩阵 $$\mathbf{S}_t = \sum_{j=1}^t\mathbf{v}_j\mathbf{k}_j^\top$$，计算便可以写成：
 
 $$
 \mathbf{S}_t = \mathbf{S}_{t-1} + \mathbf{v}_t\mathbf{k}_t^\top \in \mathbb{R}^{d\times d}, \qquad
 \mathbf{o}_t = \mathbf{S}_t \mathbf{q}_t \in \mathbb{R}^{d}.
 $$
 
-这个形式揭示出：线性注意力本质上是一个拥有矩阵值状态 $\mathbf{S}$ 的**线性 RNN**。该状态不断累积 key–value 外积，使状态规模能够高效地从 $\mathcal{O}(d)$ 扩展到 $\mathcal{O}(d^2)$。
+这个形式揭示出：线性注意力本质上是一个拥有矩阵值状态 $$\mathbf{S}$$ 的**线性 RNN**。该状态不断累积 key–value 外积，使状态规模能够高效地从 $$\mathcal{O}(d)$$ 扩展到 $$\mathcal{O}(d^2)$$。
 
 <details>
 <summary>为什么要扩展状态？</summary>
@@ -95,16 +95,16 @@ $$
 
 </details>
 
-使用这种方法后，我们只需要保存并更新 $\mathbf{S}_t$，不再需要维护此前所有的 key–value 对。这一优化显著提高了效率：自回归推理的时间复杂度从 $\mathcal{O}(L^2d)$ 降至 $\mathcal{O}(Ld^2)$，空间复杂度则从 $\mathcal{O}(Ld)$ 降至 $\mathcal{O}(d^2)$。它在以下两种场景中特别有优势：
+使用这种方法后，我们只需要保存并更新 $$\mathbf{S}_t$$，不再需要维护此前所有的 key–value 对。这一优化显著提高了效率：自回归推理的时间复杂度从 $$\mathcal{O}(L^2d)$$ 降至 $$\mathcal{O}(Ld^2)$$，空间复杂度则从 $$\mathcal{O}(Ld)$$ 降至 $$\mathcal{O}(d^2)$$。它在以下两种场景中特别有优势：
 
 - **长序列建模**：softmax 注意力的二次复杂度可能成为显著瓶颈；
-- **生成阶段**：计算通常受内存带宽限制。当 $L \gg d$ 时，移除 KV Cache 可以显著降低推理延迟。
+- **生成阶段**：计算通常受内存带宽限制。当 $$L \gg d$$ 时，移除 KV Cache 可以显著降低推理延迟。
 
 #### 没有免费的午餐：线性注意力的主要局限
 
 遗憾的是，世上没有免费的午餐。线性注意力使用固定大小的状态矩阵，因而无法完美保存全部历史信息；精确检索也就格外困难。
 
-更形式化地说，线性注意力实现的是一种 key–value 联想记忆，即 key 与 value 外积之和：$\mathbf{S} = \sum \mathbf{v}_i\mathbf{k}_i^\top$。假设所有 key 都被归一化为单位长度，当我们试图检索特定 key $\mathbf{k}_j$ 对应的 value 时，会得到：
+更形式化地说，线性注意力实现的是一种 key–value 联想记忆，即 key 与 value 外积之和：$$\mathbf{S} = \sum \mathbf{v}_i\mathbf{k}_i^\top$$。假设所有 key 都被归一化为单位长度，当我们试图检索特定 key $$\mathbf{k}_j$$ 对应的 value 时，会得到：
 
 $$
 \begin{aligned}
@@ -114,7 +114,7 @@ $$
 \end{aligned}
 $$
 
-为了尽量减小检索误差项，我们需要对所有 $i\neq j$ 都满足 $\mathbf{k}_i^\top \mathbf{k}_j = 0$——换言之，所有 key 都必须彼此**正交**。但这暴露出一个根本限制：在 $d$ 维空间里，最多只能存在 $d$ 个相互正交的向量。这也解释了为什么增大注意力头维度会有帮助：向量空间会有更多“空间”来存储不同的 key–value 对。
+为了尽量减小检索误差项，我们需要对所有 $$i\neq j$$ 都满足 $$\mathbf{k}_i^\top \mathbf{k}_j = 0$$——换言之，所有 key 都必须彼此**正交**。但这暴露出一个根本限制：在 $$d$$ 维空间里，最多只能存在 $$d$$ 个相互正交的向量。这也解释了为什么增大注意力头维度会有帮助：向量空间会有更多“空间”来存储不同的 key–value 对。
 
 这一理论限制会直接反映在实践中：标准线性注意力在语言建模上的表现明显落后于 softmax 注意力。首要原因是记忆“过载”：在这个 key–value 联想记忆系统里，我们只能添加新的关联，却无法擦除已有信息。随着序列增长，“检索误差”不断累积，最终导致性能下降。正如 David Eagleman 在《Livewired: The Inside Story of the Ever-Changing Brain》中所说：
 
@@ -131,7 +131,7 @@ $$
 \mathbf{S}_t = \mathbf{G}_t \odot \mathbf{S}_{t-1} + \mathbf{v}_t\mathbf{k}_t^\top.
 $$
 
-为了提高参数效率，不同模型会以不同方式对 $\mathbf{G}_t \in \mathbb{R}^{d\times d}$ 进行结构化参数化，其中常见的是外积结构：
+为了提高参数效率，不同模型会以不同方式对 $$\mathbf{G}_t \in \mathbb{R}^{d\times d}$$ 进行结构化参数化，其中常见的是外积结构：
 
 Decaying Fast Weight：
 
@@ -219,14 +219,14 @@ $$
 
 将各组成部分拆开看，它与 Delta Rule 的对应关系就很清楚了：
 
-- $\beta_t \in \mathbb{R}$ 相当于学习率；
-- $\mathbf{k}_t \in \mathbb{R}^d$ 是输入数据；
-- $\mathbf{v}_t \in \mathbb{R}^d$ 是目标；
-- $\mathbf{S}_{t-1}\mathbf{k}_t \in \mathbb{R}^d$ 是当前预测。
+- $$\beta_t \in \mathbb{R}$$ 相当于学习率；
+- $$\mathbf{k}_t \in \mathbb{R}^d$$ 是输入数据；
+- $$\mathbf{v}_t \in \mathbb{R}^d$$ 是目标；
+- $$\mathbf{S}_{t-1}\mathbf{k}_t \in \mathbb{R}^d$$ 是当前预测。
 
 后文还会重新讨论这一形式，并说明它如何从在线损失函数上的一次梯度下降中自然产生。
 
-理解这个更新规则还有另一种直观方式。可以把 $\mathbf{S}_{t-1}\mathbf{k}_t$ 看作从记忆中检索当前 key $\mathbf{k}_t$ 所关联的“旧 value”。当同一个 key 出现了新关联的 value $\mathbf{v}_t$ 时，我们不会盲目覆盖，而是进行一次审慎更新：
+理解这个更新规则还有另一种直观方式。可以把 $$\mathbf{S}_{t-1}\mathbf{k}_t$$ 看作从记忆中检索当前 key $$\mathbf{k}_t$$ 所关联的“旧 value”。当同一个 key 出现了新关联的 value $$\mathbf{v}_t$$ 时，我们不会盲目覆盖，而是进行一次审慎更新：
 
 $$
 \begin{aligned}
@@ -237,7 +237,7 @@ $$
 \end{aligned}
 $$
 
-$\mathbf{v}_t^{\mathrm{new}}$ 是旧 value 与当前 value 的学习型组合，由动态的 $\beta_t \in (0,1)$ 控制：当 $\beta_t=0$ 时，记忆内容保持不变；当 $\beta_t=1$ 时，旧的关联 value 会被新的 value 完全替换。
+$$\mathbf{v}_t^{\mathrm{new}}$$ 是旧 value 与当前 value 的学习型组合，由动态的 $$\beta_t \in (0,1)$$ 控制：当 $$\beta_t=0$$ 时，记忆内容保持不变；当 $$\beta_t=1$$ 时，旧的关联 value 会被新的 value 完全替换。
 
 #### DeltaNet：强大的上下文学习 RNN
 
@@ -282,7 +282,7 @@ MQAR 任务的形式如下：每个字母与一个数字关联，模型需要正
 
 #### 与线性注意力相比，DeltaNet 为什么更擅长上下文检索？
 
-DeltaNet 的更新规则可以通过梯度下降，在每个时间步 $t$ 依次最小化期望输出与预测输出之间的均方误差（MSE）推导出来[^ttt-connection]：
+DeltaNet 的更新规则可以通过梯度下降，在每个时间步 $$t$$ 依次最小化期望输出与预测输出之间的均方误差（MSE）推导出来[^ttt-connection]：
 
 $$
 \mathcal{L}_t(\mathbf{S}) = \frac{1}{2}\|\mathbf{S} \mathbf{k}_t - \mathbf{v}_t\|^2.
@@ -298,7 +298,7 @@ $$
 \end{aligned}
 $$
 
-令学习率 $\eta_t=\beta_t$，就会得到 DeltaNet 的更新规则。
+令学习率 $$\eta_t=\beta_t$$，就会得到 DeltaNet 的更新规则。
 
 相比之下，标准线性注意力使用的是线性损失函数：
 
@@ -316,7 +316,7 @@ $$
 \end{aligned}
 $$
 
-令 $\eta_t=1$，便恢复了标准线性注意力的更新。
+令 $$\eta_t=1$$，便恢复了标准线性注意力的更新。
 
 由此，DeltaNet 在上下文检索上的优势就很清楚了：它会在每一步最小化 MSE，因此非常适合联想回忆之类的任务——对这些任务来说，降低大误差是准确检索的关键。
 
@@ -330,7 +330,7 @@ $$
 
 ### DeltaNet 的并行扫描：一次失败的尝试
 
-上一部分已经看到，DeltaNet 在这些诊断性合成任务上表现很好。那么，接下来只要把它扩大到现代语言模型的规模就可以了，对吗？事实并没有这么简单。原始 DeltaNet 被当作纯 RNN 处理，需要执行 $\mathcal{O}(L)$ 个串行步骤；面对拥有大规模并行计算能力的 GPU，这种方式效率很低。
+上一部分已经看到，DeltaNet 在这些诊断性合成任务上表现很好。那么，接下来只要把它扩大到现代语言模型的规模就可以了，对吗？事实并没有这么简单。原始 DeltaNet 被当作纯 RNN 处理，需要执行 $$\mathcal{O}(L)$$ 个串行步骤；面对拥有大规模并行计算能力的 GPU，这种方式效率很低。
 
 因此，我们需要找到一种沿序列长度维度并行化 DeltaNet 的方法，以实现硬件高效的训练。本篇先讨论一种有趣但不实用的方案——并行扫描（parallel scan），然后再给出另一种实践中更加高效的并行算法。
 
@@ -355,8 +355,8 @@ $$
 
 为简化记号，定义：
 
-- 转移矩阵 $\mathbf{M}_t = \mathbf{I} - \beta_t \mathbf{k}_t \mathbf{k}_t^\intercal$；
-- 更新项 $\mathbf{X}_t = \beta_t \mathbf{v}_t \mathbf{k}_t^\top$。
+- 转移矩阵 $$\mathbf{M}_t = \mathbf{I} - \beta_t \mathbf{k}_t \mathbf{k}_t^\intercal$$；
+- 更新项 $$\mathbf{X}_t = \beta_t \mathbf{v}_t \mathbf{k}_t^\top$$。
 
 状态更新于是变成：
 
@@ -366,11 +366,11 @@ $$
 
 #### 定义结合算子
 
-这一形式与经典资料 [*Prefix Sums and Their Applications*](https://www.cs.cmu.edu/~guyb/papers/Ble93.pdf) 中式（1.5）的一阶递推完全一致。在这个框架中，矩阵乘法（$\otimes$）和矩阵加法（$\oplus$）充当二元算子，并满足所需性质：
+这一形式与经典资料 [*Prefix Sums and Their Applications*](https://www.cs.cmu.edu/~guyb/papers/Ble93.pdf) 中式（1.5）的一阶递推完全一致。在这个框架中，矩阵乘法（$$\otimes$$）和矩阵加法（$$\oplus$$）充当二元算子，并满足所需性质：
 
-1. 矩阵加法满足结合律：$(A+B)+C=A+(B+C)$；
-2. 矩阵乘法满足结合律：$(AB)C=A(BC)$；
-3. 矩阵乘法对加法满足分配律：$A(B+C)=AB+AC$。
+1. 矩阵加法满足结合律：$$(A+B)+C=A+(B+C)$$；
+2. 矩阵乘法满足结合律：$$(AB)C=A(BC)$$；
+3. 矩阵乘法对加法满足分配律：$$A(B+C)=AB+AC$$。
 
 根据该框架，把每一步的状态对定义为：
 
@@ -379,13 +379,13 @@ c_t = [\mathbf{M}_t, \mathbf{X}_t]
 = [\mathbf{I} - \beta_t \mathbf{k}_t \mathbf{k}_t^\intercal,\, \beta_t \mathbf{v}_t \mathbf{k}_t^\top].
 $$
 
-再定义用于合并这些状态对的结合算子 $\bullet$：
+再定义用于合并这些状态对的结合算子 $$\bullet$$：
 
 $$
 c_i \bullet c_j = [\mathbf{M}_i\mathbf{M}_j,\, \mathbf{M}_j\mathbf{X}_i + \mathbf{X}_j].
 $$
 
-这个算子保留了更新中的时间依赖：合并两个时间步时，较早的更新项 $\mathbf{X}_i$ 必须先经过较晚的转移矩阵 $\mathbf{M}_j$ 变换，而较晚的更新项 $\mathbf{X}_j$ 保持不变。
+这个算子保留了更新中的时间依赖：合并两个时间步时，较早的更新项 $$\mathbf{X}_i$$ 必须先经过较晚的转移矩阵 $$\mathbf{M}_j$$ 变换，而较晚的更新项 $$\mathbf{X}_j$$ 保持不变。
 
 #### DeltaNet 的并行扫描
 
@@ -432,13 +432,13 @@ c_2 = c_1 \bullet c_2
 = [\mathbf{M}_1\mathbf{M}_2,\, \mathbf{M}_2\mathbf{X}_1 + \mathbf{X}_2].
 $$
 
-这种并行化把 DeltaNet 的串行状态更新转换成并行计算，在保持数学等价的同时，将串行依赖链从 $\mathcal{O}(L)$ 步缩短到 $\mathcal{O}(\log L)$ 步。
+这种并行化把 DeltaNet 的串行状态更新转换成并行计算，在保持数学等价的同时，将串行依赖链从 $$\mathcal{O}(L)$$ 步缩短到 $$\mathcal{O}(\log L)$$ 步。
 
 #### DeltaNet 的并行扫描有什么问题？
 
 尽管可以并行，DeltaNet 的并行扫描仍面对两个主要问题：计算复杂度和内存需求。
 
-第一个问题是**时间复杂度**。如果把 $\mathbf{M}_t$ 当作稠密矩阵，矩阵乘法具有三次方开销，DeltaNet 的并行扫描复杂度会达到 $\mathcal{O}(L\log L\,d^3)$。乍看之下，我们似乎可以利用 $\mathbf{M}_t$ 的“单位矩阵加低秩项”结构加速。下面仔细推导一下。
+第一个问题是**时间复杂度**。如果把 $$\mathbf{M}_t$$ 当作稠密矩阵，矩阵乘法具有三次方开销，DeltaNet 的并行扫描复杂度会达到 $$\mathcal{O}(L\log L\,d^3)$$。乍看之下，我们似乎可以利用 $$\mathbf{M}_t$$ 的“单位矩阵加低秩项”结构加速。下面仔细推导一下。
 
 两个相邻矩阵相乘时：
 
@@ -457,7 +457,7 @@ $$
 \end{aligned}
 $$
 
-利用单位矩阵加低秩项的结构，计算复杂度可以从 $\mathcal{O}(d^3)$ 降至 $\mathcal{O}(d^2)$：我们只需要计算向量内积 $(\mathbf{k}_0^\top \mathbf{k}_1)$ 和向量之间的外积。下一对矩阵同理：
+利用单位矩阵加低秩项的结构，计算复杂度可以从 $$\mathcal{O}(d^3)$$ 降至 $$\mathcal{O}(d^2)$$：我们只需要计算向量内积 $$(\mathbf{k}_0^\top \mathbf{k}_1)$$ 和向量之间的外积。下一对矩阵同理：
 
 $$
 \begin{aligned}
@@ -469,7 +469,7 @@ $$
 \end{aligned}
 $$
 
-然而，当我们继续合并这些结果、计算 $c_{1:4}$ 之类的更大跨度时，乘法会迅速变得复杂。我们需要计算：
+然而，当我们继续合并这些结果、计算 $$c_{1:4}$$ 之类的更大跨度时，乘法会迅速变得复杂。我们需要计算：
 
 $$
 \begin{aligned}
@@ -483,11 +483,11 @@ $$
 \end{aligned}
 $$
 
-第一个括号中的每一项都必须与第二个括号中的每一项相乘。虽然每个矩阵最初只是 $\mathcal{O}(1)$ 个秩 1 项之和，但乘法会使项数呈二次增长。经过 $\log L$ 层并行扫描后，最终会得到 $\mathcal{O}(L^{\log c})$ 个项，其中 $c$ 是每个矩阵最初包含的项数。即便每一项仍然是秩 1，这种项数的指数式增长也使显式维护该结构变得不切实际。因此，将它们视作稠密矩阵、接受 $\mathcal{O}(d^3L\log L)$ 复杂度反而更加合理，尤其是考虑到现代硬件对稠密矩阵运算的高效支持。这就是并行扫描在理论上很吸引人，却在 DeltaNet 实际计算中面对严重困难的原因。
+第一个括号中的每一项都必须与第二个括号中的每一项相乘。虽然每个矩阵最初只是 $$\mathcal{O}(1)$$ 个秩 1 项之和，但乘法会使项数呈二次增长。经过 $$\log L$$ 层并行扫描后，最终会得到 $$\mathcal{O}(L^{\log c})$$ 个项，其中 $$c$$ 是每个矩阵最初包含的项数。即便每一项仍然是秩 1，这种项数的指数式增长也使显式维护该结构变得不切实际。因此，将它们视作稠密矩阵、接受 $$\mathcal{O}(d^3L\log L)$$ 复杂度反而更加合理，尤其是考虑到现代硬件对稠密矩阵运算的高效支持。这就是并行扫描在理论上很吸引人，却在 DeltaNet 实际计算中面对严重困难的原因。
 
-第二个主要问题是**空间复杂度**。并行扫描必须在每一步把所有中间的 $d\times d$ 矩阵写入高带宽内存（HBM）。对于拥有矩阵值状态的线性 RNN，这种物化开销高达 $\mathcal{O}(Ld^2)$，代价难以承受。循环计算可以避免这种物化[^recurrent-materialization]，但并行扫描似乎没有明显的绕过方式，除非所有状态都能装进 SRAM。Mamba 的硬件感知选择性扫描算法采用的就是这种方法，因此无需物化中间状态；但它会限制状态大小——状态太大就会耗尽共享内存。鉴于 I/O 成本支配了这类计算，并行扫描在实践中可能并不值得采用。
+第二个主要问题是**空间复杂度**。并行扫描必须在每一步把所有中间的 $$d\times d$$ 矩阵写入高带宽内存（HBM）。对于拥有矩阵值状态的线性 RNN，这种物化开销高达 $$\mathcal{O}(Ld^2)$$，代价难以承受。循环计算可以避免这种物化[^recurrent-materialization]，但并行扫描似乎没有明显的绕过方式，除非所有状态都能装进 SRAM。Mamba 的硬件感知选择性扫描算法采用的就是这种方法，因此无需物化中间状态；但它会限制状态大小——状态太大就会耗尽共享内存。鉴于 I/O 成本支配了这类计算，并行扫描在实践中可能并不值得采用。
 
-相关讨论可参见 [François Fleuret 的帖子](https://x.com/francoisfleuret/status/1793016689589625263)和[作者此前关于分块算法的讨论](https://x.com/SonglinYang4/status/1793029555277697379)。分块算法是另一种结合扫描，它的内存效率更高，并通过执行更多矩阵乘法来提高 Tensor Core 的利用率。因而，如果能为 DeltaNet 开发一种相对于 $d$ 保持二次复杂度、同时保留内存效率的分块训练算法，将非常有价值。
+相关讨论可参见 [François Fleuret 的帖子](https://x.com/francoisfleuret/status/1793016689589625263)和[作者此前关于分块算法的讨论](https://x.com/SonglinYang4/status/1793029555277697379)。分块算法是另一种结合扫描，它的内存效率更高，并通过执行更多矩阵乘法来提高 Tensor Core 的利用率。因而，如果能为 DeltaNet 开发一种相对于 $$d$$ 保持二次复杂度、同时保留内存效率的分块训练算法，将非常有价值。
 
 ### DeltaNet 的分块算法
 
@@ -503,9 +503,9 @@ $$
 \end{aligned}
 $$
 
-现代 GPU 的 Tensor Core 对这种矩阵乘法做了高度优化。利用这一性质，我们不再保存全部中间隐藏状态，而是以大小为 $C$ 的固定间隔保存状态作为检查点。于是，只需保存 $\mathbf{S}_{0}, \mathbf{S}_{C}, \mathbf{S}_{2C}, \ldots, \mathbf{S}_{(n-1)C}$，其中 $n=\lceil L/C\rceil$。
+现代 GPU 的 Tensor Core 对这种矩阵乘法做了高度优化。利用这一性质，我们不再保存全部中间隐藏状态，而是以大小为 $$C$$ 的固定间隔保存状态作为检查点。于是，只需保存 $$\mathbf{S}_{0}, \mathbf{S}_{C}, \mathbf{S}_{2C}, \ldots, \mathbf{S}_{(n-1)C}$$，其中 $$n=\lceil L/C\rceil$$。
 
-记 $\mathbf{S}_{[i]} := \mathbf{S}_{iC} \in \mathbb{R}^{d\times d}$；对 $\square \in \{\mathbf{Q},\mathbf{K},\mathbf{V},\mathbf{O}\}$，记 $\square_{[i]} = \square_{iC+1:(i+1)C} \in \mathbb{R}^{C\times d}$；对 $\square \in \{\mathbf{q},\mathbf{k},\mathbf{v},\mathbf{o},\mathbf{S}\}$，记 $\square_{[i]}^r = \square_{iC+r}$。对于分块 $i$ 内的任意位置 $r$，可以计算：
+记 $$\mathbf{S}_{[i]} := \mathbf{S}_{iC} \in \mathbb{R}^{d\times d}$$；对 $$\square \in \{\mathbf{Q},\mathbf{K},\mathbf{V},\mathbf{O}\}$$，记 $$\square_{[i]} = \square_{iC+1:(i+1)C} \in \mathbb{R}^{C\times d}$$；对 $$\square \in \{\mathbf{q},\mathbf{k},\mathbf{v},\mathbf{o},\mathbf{S}\}$$，记 $$\square_{[i]}^r = \square_{iC+r}$$。对于分块 $$i$$ 内的任意位置 $$r$$，可以计算：
 
 $$
 \begin{aligned}
@@ -533,11 +533,11 @@ $$
   <figcaption>线性注意力分块算法的可视化表示。</figcaption>
 </figure>
 
-当分块大小 $C$ 是 16 的倍数时，这种分块形式能够利用 Tensor Core，获得很高的硬件利用率；我们的开源库 [flash-linear-attention](https://github.com/fla-org/flash-linear-attention) 已经实现了这一算法。
+当分块大小 $$C$$ 是 16 的倍数时，这种分块形式能够利用 Tensor Core，获得很高的硬件利用率；我们的开源库 [flash-linear-attention](https://github.com/fla-org/flash-linear-attention) 已经实现了这一算法。
 
 #### DeltaNet 的 WY 表示
 
-前面的失败尝试说明，DeltaNet 转移矩阵的累积乘积似乎很难被紧凑表示，仿佛必须保存大量中间结果。幸运的是，我们还有办法：DeltaNet 的转移矩阵与 [Householder 矩阵](https://en.wikipedia.org/wiki/Householder_transformation)十分相似（当 $\beta_t=2$ 时），而 Householder 矩阵的累积乘积存在一种优雅的紧凑表示。
+前面的失败尝试说明，DeltaNet 转移矩阵的累积乘积似乎很难被紧凑表示，仿佛必须保存大量中间结果。幸运的是，我们还有办法：DeltaNet 的转移矩阵与 [Householder 矩阵](https://en.wikipedia.org/wiki/Householder_transformation)十分相似（当 $$\beta_t=2$$ 时），而 Householder 矩阵的累积乘积存在一种优雅的紧凑表示。
 
 <figure class="figure-narrow">
   <img src="/assets/images/posts/deltanet-explained/householder.png" alt="Householder 反射变换">
@@ -551,7 +551,7 @@ $$
 = \mathbf{I} - \sum_{i=1}^t \mathbf{w}_i\mathbf{k}_i^\top.
 $$
 
-可以用数学归纳法证明。定义 $\mathbf{P}_n = \prod_{t=1}^n(\mathbf{I}-\beta_t\mathbf{k}_t\mathbf{k}_t^\top)$。当 $n=1$ 时等式显然成立；假设它对 $n-1$ 成立，则对 $n$ 有：
+可以用数学归纳法证明。定义 $$\mathbf{P}_n = \prod_{t=1}^n(\mathbf{I}-\beta_t\mathbf{k}_t\mathbf{k}_t^\top)$$。当 $$n=1$$ 时等式显然成立；假设它对 $$n-1$$ 成立，则对 $$n$$ 有：
 
 $$
 \begin{aligned}
@@ -571,9 +571,9 @@ $$
 \end{aligned}
 $$
 
-这个证明不仅说明了该表示的正确性，也给出了计算 $\mathbf{w}$ 向量的构造方法。
+这个证明不仅说明了该表示的正确性，也给出了计算 $$\mathbf{w}$$ 向量的构造方法。
 
-同样，可以用归纳法证明 $\mathbf{S}_n = \sum_{t=1}^{n} \mathbf{u}_t\mathbf{k}_t^\top$：
+同样，可以用归纳法证明 $$\mathbf{S}_n = \sum_{t=1}^{n} \mathbf{u}_t\mathbf{k}_t^\top$$：
 
 $$
 \begin{aligned}
@@ -611,7 +611,7 @@ $$
 \end{aligned}
 $$
 
-与线性注意力类似，我们可以使用检查点，以大小为 $C$ 的固定间隔保存状态。对分块 $i$ 内的任意位置 $r$：
+与线性注意力类似，我们可以使用检查点，以大小为 $$C$$ 的固定间隔保存状态。对分块 $$i$$ 内的任意位置 $$r$$：
 
 $$
 \begin{aligned}
@@ -627,7 +627,7 @@ $$
 \end{aligned}
 $$
 
-$\mathbf{w}_{[i]}^t$ 和 $\mathbf{u}_{[i]}^t$ 使用 WY 表示计算，但计算从每个分块的第一个位置开始，而不是从整条序列的开头开始，因此各分块可以并行处理：
+$$\mathbf{w}_{[i]}^t$$ 和 $$\mathbf{u}_{[i]}^t$$ 使用 WY 表示计算，但计算从每个分块的第一个位置开始，而不是从整条序列的开头开始，因此各分块可以并行处理：
 
 $$
 \mathbf{w}_{[t]}^r = \beta_{[t]}^r
@@ -683,11 +683,11 @@ $$
 
 #### 从图论角度理解 UT 变换
 
-分块并行形式把 DeltaNet 的大部分操作转换成了与线性注意力类似的高效矩阵乘法。不过，仍有一个关键计算瓶颈：更新向量 $\mathbf{U}_{[i]}$ 和 $\mathbf{W}_{[i]}$ 的递归构造。
+分块并行形式把 DeltaNet 的大部分操作转换成了与线性注意力类似的高效矩阵乘法。不过，仍有一个关键计算瓶颈：更新向量 $$\mathbf{U}_{[i]}$$ 和 $$\mathbf{W}_{[i]}$$ 的递归构造。
 
 这正是需要 **UT 变换**的原因：把递归计算重构成可以利用高效矩阵乘法的形式。下面从图论角度理解它。
 
-在图论中，对一个带权有向图，邻接矩阵 $\mathbf{A}$ 表示节点间的直接连接：$\mathbf{A}[i,j]$ 是从节点 $j$ 指向节点 $i$ 的边权。当计算 $(\mathbf{I}-\mathbf{A})^{-1}$ 时，其中每个元素 $[i,j]$ 都表示从 $j$ 到 $i$ 的所有可能路径的权重之和。
+在图论中，对一个带权有向图，邻接矩阵 $$\mathbf{A}$$ 表示节点间的直接连接：$$\mathbf{A}[i,j]$$ 是从节点 $$j$$ 指向节点 $$i$$ 的边权。当计算 $$(\mathbf{I}-\mathbf{A})^{-1}$$ 时，其中每个元素 $$[i,j]$$ 都表示从 $$j$$ 到 $$i$$ 的所有可能路径的权重之和。
 
 重新观察递归更新方程：
 
@@ -706,8 +706,8 @@ $$
 它们构成一个带权有向图：
 
 - 节点表示序列位置；
-- 当 $i<r$ 时，有一条从位置 $i$ 指向位置 $r$ 的有向边，对应因果依赖；
-- 边权 $-\beta_{[t]}^r\mathbf{k}_{[t]}^{i\top}\mathbf{k}_{[t]}^r$ 通过 key 相似度和学习率编码交互。
+- 当 $$i<r$$ 时，有一条从位置 $$i$$ 指向位置 $$r$$ 的有向边，对应因果依赖；
+- 边权 $$-\beta_{[t]}^r\mathbf{k}_{[t]}^{i\top}\mathbf{k}_{[t]}^r$$ 通过 key 相似度和学习率编码交互。
 
 该图的邻接矩阵可以高效计算：
 
@@ -717,13 +717,13 @@ $$
 \mathbf{K}_{[t]}\mathbf{K}_{[t]}^\top,-1\right).
 $$
 
-由于 $\mathbf{A}_{[t]}$ 是严格下三角矩阵，$\mathbf{I}-\mathbf{A}_{[t]}$ 也是对角线全为 1 的下三角矩阵。借助这一特殊结构，可以通过前向代入高效求逆：
+由于 $$\mathbf{A}_{[t]}$$ 是严格下三角矩阵，$$\mathbf{I}-\mathbf{A}_{[t]}$$ 也是对角线全为 1 的下三角矩阵。借助这一特殊结构，可以通过前向代入高效求逆：
 
 $$
 \mathbf{T}_{[t]} = (\mathbf{I}-\mathbf{A}_{[t]})^{-1}.
 $$
 
-这避免了通用矩阵求逆，显著提高了计算效率。得到能够刻画各位置之间全部累积影响路径的 $\mathbf{T}_{[t]}$ 后，再执行最终乘法：
+这避免了通用矩阵求逆，显著提高了计算效率。得到能够刻画各位置之间全部累积影响路径的 $$\mathbf{T}_{[t]}$$ 后，再执行最终乘法：
 
 $$
 \mathbf{W}_{[t]} = \mathbf{T}_{[t]}
@@ -736,7 +736,7 @@ $$
 
 #### 速度比较
 
-我们使用 Triton 分别实现了 DeltaNet 的循环版本和分块并行版本。实验比较了不同序列长度 $L$ 和注意力头维度 $d_{\text{head}}$ 下的性能，模型维度固定为 $d=2048$。为确保不同配置间的比较公平，我们通过调整 batch size，把序列元素总数固定在 16,384。
+我们使用 Triton 分别实现了 DeltaNet 的循环版本和分块并行版本。实验比较了不同序列长度 $$L$$ 和注意力头维度 $$d_{\text{head}}$$ 下的性能，模型维度固定为 $$d=2048$$。为确保不同配置间的比较公平，我们通过调整 batch size，把序列元素总数固定在 16,384。
 
 <figure class="figure-medium">
   <img src="/assets/images/posts/deltanet-explained/speedup.png" alt="DeltaNet 循环与分块并行实现的速度比较">
@@ -777,13 +777,13 @@ DeltaNet 的吞吐量很有竞争力，只比 GLA（Gated Linear Attention，门
 
 从宏观上看，DeltaNet 遵循由 Llama 普及的现代 Transformer block 设计，让 token mixing 与 channel mixing 交替出现：DeltaNet 取代 self-attention 负责 token mixing，SwiGLU 则负责 channel mixing。我们的主要修改集中在 token mixing 层，共有三项：
 
-1. 在 query 和 key 的处理中，以 $L_2$ 归一化和 SiLU 激活替换原始的 $L_1$ 归一化与 $1+\mathrm{ELU}$ 激活；
+1. 在 query 和 key 的处理中，以 $$L_2$$ 归一化和 SiLU 激活替换原始的 $$L_1$$ 归一化与 $$1+\mathrm{ELU}$$ 激活；
 2. 在 query、key 和 value 的线性投影之后加入短卷积；
 3. 在最终投影之前加入输出归一化。
 
 完整处理流水线如下：
 
-- **Query / Key：**Linear → ShortConv → SiLU → $L_2$Norm；
+- **Query / Key：**Linear → ShortConv → SiLU → $$L_2$$Norm；
 - **Value：**Linear → ShortConv → SiLU；
 - **Beta：**Linear → Sigmoid；
 - **Output：**Delta Rule(query, key, value, beta) → RMSNorm → Linear。
@@ -800,23 +800,23 @@ $$
 + \mathbf{v}_t\mathbf{k}_t^\top.
 $$
 
-这个循环系统的稳定性取决于转移矩阵 $(\mathbf{I}-\beta_t\mathbf{k}_t\mathbf{k}_t^\top)$ 的特征值。该矩阵有一个很优美的谱结构：
+这个循环系统的稳定性取决于转移矩阵 $$(\mathbf{I}-\beta_t\mathbf{k}_t\mathbf{k}_t^\top)$$ 的特征值。该矩阵有一个很优美的谱结构：
 
-- 沿 $\mathbf{k}_t$ 方向的特征值为 $1-\beta_t\|\mathbf{k}_t\|^2$；
-- 与 $\mathbf{k}_t$ 正交的所有方向，特征值均为 1。
+- 沿 $$\mathbf{k}_t$$ 方向的特征值为 $$1-\beta_t\|\mathbf{k}_t\|^2$$；
+- 与 $$\mathbf{k}_t$$ 正交的所有方向，特征值均为 1。
 
-为了实现稳定更新，需要所有特征值的绝对值都不超过 1。给定 $0\leq\beta_t\leq1$，就要求 $\|\mathbf{k}_t\|^2\leq2$。原始 DeltaNet 使用 $L_1$ 归一化；我们发现 $L_2$ 归一化不仅实验表现更好，而且具有更直观的几何解释：当 $\beta_t=1$ 且 $\|\mathbf{k}_t\|_2=1$ 时，矩阵 $\mathbf{I}-\mathbf{k}_t\mathbf{k}_t^\top$ 会成为一个投影矩阵。它会选择性擦除 $\mathbf{k}_t$ 方向上的信息，同时保留其他全部方向。
+为了实现稳定更新，需要所有特征值的绝对值都不超过 1。给定 $$0\leq\beta_t\leq1$$，就要求 $$\|\mathbf{k}_t\|^2\leq2$$。原始 DeltaNet 使用 $$L_1$$ 归一化；我们发现 $$L_2$$ 归一化不仅实验表现更好，而且具有更直观的几何解释：当 $$\beta_t=1$$ 且 $$\|\mathbf{k}_t\|_2=1$$ 时，矩阵 $$\mathbf{I}-\mathbf{k}_t\mathbf{k}_t^\top$$ 会成为一个投影矩阵。它会选择性擦除 $$\mathbf{k}_t$$ 方向上的信息，同时保留其他全部方向。
 
 <figure class="figure-medium">
   <img src="/assets/images/posts/deltanet-explained/projection.png" alt="投影矩阵擦除平行分量、保留正交分量的示意图">
   <figcaption>投影矩阵的几何作用。</figcaption>
 </figure>
 
-投影矩阵具有一个重要的几何效果：作用到任意向量上时，它会移除与 $\mathbf{k}_t$ 平行的分量，并保留所有正交分量。在 DeltaNet 中，这意味着每次更新都会“清理”状态，移除可能干扰当前 key 方向的分量。随着时间推进，这一操作有助于让不同 key 向量保持更清晰的分离，从而减少第一篇讨论的存储模式之间的干扰（即检索误差）。这一几何性质也解释了为什么直接符合投影解释的 $L_2$ 归一化，会比 $L_1$ 归一化带来更好的检索性能。
+投影矩阵具有一个重要的几何效果：作用到任意向量上时，它会移除与 $$\mathbf{k}_t$$ 平行的分量，并保留所有正交分量。在 DeltaNet 中，这意味着每次更新都会“清理”状态，移除可能干扰当前 key 方向的分量。随着时间推进，这一操作有助于让不同 key 向量保持更清晰的分离，从而减少第一篇讨论的存储模式之间的干扰（即检索误差）。这一几何性质也解释了为什么直接符合投影解释的 $$L_2$$ 归一化，会比 $$L_1$$ 归一化带来更好的检索性能。
 
-我们还发现，对 query 应用 $L_2$ 归一化也能提高模型性能。这与近期 self-attention 架构的发展趋势一致：QK-normalization 已经成为稳定并增强注意力机制的有效技术。
+我们还发现，对 query 应用 $$L_2$$ 归一化也能提高模型性能。这与近期 self-attention 架构的发展趋势一致：QK-normalization 已经成为稳定并增强注意力机制的有效技术。
 
-最后，当前设计可能存在一个限制：转移矩阵的特征值被约束为严格正值。近期一项很有启发性的工作说明，这可能限制模型的状态跟踪能力。幸运的是，论文提出的改进非常简单——把 beta 项改成 $\beta_t=2\beta_t$，转移矩阵就可以拥有负特征值。仅仅一行修改，便可能显著扩展 DeltaNet 的表示能力。感兴趣的读者可以阅读[这段进一步讨论](https://x.com/riccardograzzi/status/1860017064473428220)。
+最后，当前设计可能存在一个限制：转移矩阵的特征值被约束为严格正值。近期一项很有启发性的工作说明，这可能限制模型的状态跟踪能力。幸运的是，论文提出的改进非常简单——把 beta 项改成 $$\beta_t=2\beta_t$$，转移矩阵就可以拥有负特征值。仅仅一行修改，便可能显著扩展 DeltaNet 的表示能力。感兴趣的读者可以阅读[这段进一步讨论](https://x.com/riccardograzzi/status/1860017064473428220)。
 
 #### 输出归一化
 
@@ -829,7 +829,7 @@ $$
 {\sum_{i=1}^t \phi(\mathbf{k})_i^\top\phi(\mathbf{q})_t},
 $$
 
-其中 $\phi$ 是正值特征映射。然而，Qin 等人的一项重要分析表明，这个归一化项可能导致无界梯度和训练不稳定。为了解决这一问题，他们建议移除分母，改为在最终投影之前对输出应用归一化。这项架构修改此后逐渐成为标准做法，RetNet、GLA、Mamba 2 等现代线性注意力模型都采用了它。
+其中 $$\phi$$ 是正值特征映射。然而，Qin 等人的一项重要分析表明，这个归一化项可能导致无界梯度和训练不稳定。为了解决这一问题，他们建议移除分母，改为在最终投影之前对输出应用归一化。这项架构修改此后逐渐成为标准做法，RetNet、GLA、Mamba 2 等现代线性注意力模型都采用了它。
 
 #### 激活函数的选择
 
@@ -838,7 +838,7 @@ $$
   <figcaption>SiLU 激活函数。</figcaption>
 </figure>
 
-原始 DeltaNet 使用 $1+\mathrm{ELU}$ 激活，而我们的实验显示 SiLU 能获得更好的性能；这与 Mamba 2、xLSTM 和 Lightning Attention 等近期架构的选择一致。传统线性注意力模型通常会选择能够通过正值特征映射保证注意力分数为正的激活函数，例如 ReLU、$1+\mathrm{ELU}$ 或指数函数；允许负值取得成功，与 Differential Transformer 的发现相呼应，也说明把注意力分数严格限制为正值可能没有必要，甚至会限制模型。
+原始 DeltaNet 使用 $$1+\mathrm{ELU}$$ 激活，而我们的实验显示 SiLU 能获得更好的性能；这与 Mamba 2、xLSTM 和 Lightning Attention 等近期架构的选择一致。传统线性注意力模型通常会选择能够通过正值特征映射保证注意力分数为正的激活函数，例如 ReLU、$$1+\mathrm{ELU}$$ 或指数函数；允许负值取得成功，与 Differential Transformer 的发现相呼应，也说明把注意力分数严格限制为正值可能没有必要，甚至会限制模型。
 
 #### 短卷积
 
@@ -854,14 +854,14 @@ $$
 - **常识推理：**LAMBADA、PiQA、HellaSwag、WinoGrande、ARC-easy 和 ARC-challenge 的平均结果；
 - **上下文检索：**FDA、SWDE 和 SQuAD 的平均结果。
 
-下面比较不同架构的状态大小，其中 $H$ 表示层数，$d$ 表示模型维度：
+下面比较不同架构的状态大小，其中 $$H$$ 表示层数，$$d$$ 表示模型维度：
 
 | 架构 | 状态扩展倍数 | 总状态大小 | 实现细节 |
 | --- | ---: | ---: | --- |
-| **Mamba** | 16× | $64Hd$ | 把 value 投影扩展到 $2d$，使用 16× 扩展率；以 Mamba 层替换 FFN，使有效状态大小加倍 |
-| **RetNet** | 512× | $512Hd$ | 把 value 投影扩展到 $2d$；query/key 头维度固定为 256 |
-| **GLA** | 256× | $256Hd$ | query/key 头大小是 value 头的一半；每层维持 $4d^2$ 个参数 |
-| **DeltaNet** | 128× | $128Hd$ | 整个架构始终使用 128 维注意力头 |
+| **Mamba** | 16× | $$64Hd$$ | 把 value 投影扩展到 $$2d$$，使用 16× 扩展率；以 Mamba 层替换 FFN，使有效状态大小加倍 |
+| **RetNet** | 512× | $$512Hd$$ | 把 value 投影扩展到 $$2d$$；query/key 头维度固定为 256 |
+| **GLA** | 256× | $$256Hd$$ | query/key 头大小是 value 头的一半；每层维持 $$4d^2$$ 个参数 |
+| **DeltaNet** | 128× | $$128Hd$$ | 整个架构始终使用 128 维注意力头 |
 
 ##### 主要结果（3.4 亿参数，150 亿 token）
 
@@ -881,11 +881,11 @@ DeltaNet 在保持合理状态大小的同时，在所有指标上都获得了�
 | --- | ---: | ---: | ---: |
 | DeltaNet（完整模型） | 28.24 | 42.1 | 22.7 |
 | 移除短卷积 | 29.08 | 41.4 | 18.6 |
-| 使用 $L_1$-norm + $1+\mathrm{ELU}$ | 31.12 | 40.1 | 11.5 |
-| 使用 $L_2$-norm + $1+\mathrm{ELU}$ | 28.03 | 42.1 | 21.8 |
-| 使用 $L_2$-norm + ReLU | 28.75 | 40.9 | 21.0 |
+| 使用 $$L_1$$-norm + $$1+\mathrm{ELU}$$ | 31.12 | 40.1 | 11.5 |
+| 使用 $$L_2$$-norm + $$1+\mathrm{ELU}$$ | 28.03 | 42.1 | 21.8 |
+| 使用 $$L_2$$-norm + ReLU | 28.75 | 40.9 | 21.0 |
 
-消融实验揭示了几项重要发现。最突出的是，检索性能对归一化方式非常敏感：$L_2$ 归一化显著优于 $L_1$ 归一化，支持了前面关于投影性质的理论分析。短卷积同样是关键组件，这说明有效的基于位置的寻址可以有意义地补充 DeltaNet 基于内容的检索机制。激活函数的选择也会产生影响，但相对较小：SiLU 比 ReLU 和 $1+\mathrm{ELU}$ 有所提升，不过其作用不及归一化方式和短卷积明显。
+消融实验揭示了几项重要发现。最突出的是，检索性能对归一化方式非常敏感：$$L_2$$ 归一化显著优于 $$L_1$$ 归一化，支持了前面关于投影性质的理论分析。短卷积同样是关键组件，这说明有效的基于位置的寻址可以有意义地补充 DeltaNet 基于内容的检索机制。激活函数的选择也会产生影响，但相对较小：SiLU 比 ReLU 和 $$1+\mathrm{ELU}$$ 有所提升，不过其作用不及归一化方式和短卷积明显。
 
 ### 混合模型：把 DeltaNet 与注意力结合起来
 
@@ -898,7 +898,7 @@ DeltaNet 在保持合理状态大小的同时，在所有指标上都获得了�
 
 第一种方法参考 Griffin 和 Samba 等近期架构，以交错方式组合滑动窗口注意力和 DeltaNet。由于窗口大小固定，这种混合架构仍然保持次二次复杂度，但它也继承了纯 RNN 模型的类似理论限制。正如 Griffin 所说明的，固定上下文窗口会限制模型检索窗口范围之外的信息。
 
-因此，我们转向第二种方法：用全局注意力增强 DeltaNet。如果用注意力替换大量 DeltaNet 层，推理效率会受到明显影响；所以我们参考 H3，只放置两个全局注意力层：一个位于第 2 层，另一个位于第 $N/2-1$ 层。严格来说，这使模型不再具有次二次复杂度；但由于注意力层用得很少，相比完整 Transformer，KV Cache 需求仍然大幅降低。
+因此，我们转向第二种方法：用全局注意力增强 DeltaNet。如果用注意力替换大量 DeltaNet 层，推理效率会受到明显影响；所以我们参考 H3，只放置两个全局注意力层：一个位于第 2 层，另一个位于第 $$N/2-1$$ 层。严格来说，这使模型不再具有次二次复杂度；但由于注意力层用得很少，相比完整 Transformer，KV Cache 需求仍然大幅降低。
 
 3.4 亿参数规模的结果证明了这些混合方法的有效性：
 
