@@ -5,9 +5,9 @@ date: 2026-08-29 00:00:00 +0800
 categories: [人工智能, 模型架构]
 tags: [DeltaNet, 线性注意力, RNN, Delta Rule, 并行算法, Gated DeltaNet]
 author: Songlin Yang
-translator: Yong
+translator: Yong/ChatGPT
 translation: true
-translation_authorized: true
+translation_authorized: false
 reprint: true
 original_title: "DeltaNet Explained (Part I–III)"
 original_author: "Songlin Yang"
